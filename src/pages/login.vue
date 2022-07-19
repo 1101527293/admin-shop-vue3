@@ -34,7 +34,8 @@
                     </el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button round color="#626aef" type="primary" @click="onSubmit" class="w-[250px]" :loading="loading">登录</el-button>
+                    <el-button round color="#626aef" type="primary" @click="onSubmit" class="w-[250px]"
+                        :loading="loading">登录</el-button>
                 </el-form-item>
             </el-form>
         </el-col>
@@ -42,58 +43,56 @@
 </template>
 
 <script setup>
-    import { ref, reactive } from 'vue'
-    import { login, getInfo } from '~/api/manager'
-    import { ElNotification } from 'element-plus'
-    import { useRouter } from 'vue-router';
-    import { useStore } from 'vuex'
-    import { setToken } from '~/composables/auth.js'
-    
-    const router = useRouter()
-    const store = useStore()
+import { ref, reactive } from 'vue'
+import { login, getInfo } from '~/api/manager'
+import { ElNotification } from 'element-plus'
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex'
+import { setToken } from '~/composables/auth.js'
 
-    let loading = ref(false)
+const router = useRouter()
+const store = useStore()
 
-    const form = reactive({
-        username: '',
-        password: ''
+let loading = ref(false)
+
+const form = reactive({
+    username: '',
+    password: ''
+})
+
+const rules = reactive({
+    username: [
+        { required: true, message: '用户名不能为空', trigger: 'blur' }
+    ],
+    password: [
+        { required: true, message: '密码不能为空', trigger: 'blur' }
+    ]
+})
+
+const formRef = ref(null)
+
+const onSubmit = () => {
+    formRef.value.validate(valid => {
+        if (!valid) return false
     })
 
-    const rules = reactive({
-        username: [
-            { required: true, message: '用户名不能为空', trigger: 'blur' }
-        ],
-        password: [
-            { required: true, message: '密码不能为空', trigger: 'blur' }
-        ]
+    loading.value = true
+
+    login(form.username, form.password).then(res => {
+        // 弹窗提示登陆成功
+        ElNotification({
+            message: '登录成功',
+            type: 'success',
+            duration: 3000
+        })
+
+        // 在cookies中存储token
+        setToken(res.token)
+
+        // 跳转到首页
+        router.push('/')
+    }).finally(() => {
+        loading.value = false
     })
-
-    const formRef = ref(null)
-
-    const onSubmit = () => {
-        formRef.value.validate(valid => {
-            if(!valid) return false
-        })
-
-        loading.value = true
-
-        login(form.username, form.password).then(res => {
-            console.log(res)
-
-            // 弹窗提示登陆成功
-            ElNotification({
-                message: '登录成功',
-                type: 'success',
-                duration: 3000
-            })
-
-            // 在cookies中存储token
-            setToken(res.token)
-
-            // 跳转到首页
-            router.push('/')
-        }).finally(() => {
-            loading.value = false
-        })
-    }
+}
 </script>

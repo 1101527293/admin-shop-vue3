@@ -183,6 +183,7 @@ function handleCommand(e) {
 .f-header {
     @apply bg-indigo-700 text-light-50 flex items-center fixed top-0 left-0 right-0;
     height: 64px;
+    z-index: 1000;
 }
 
 .logo {

@@ -31,4 +31,8 @@ import './permission.js'
 // 全屏进度条
 import 'nprogress/nprogress.css'
 
+// 全局自定义指令
+import permission from '~/directives/permission.js'
+app.use(permission)
+
 app.mount('#app')

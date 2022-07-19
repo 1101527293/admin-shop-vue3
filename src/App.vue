@@ -1,5 +1,5 @@
 <script setup>
-  
+
 </script>
 
 <template>
@@ -7,6 +7,10 @@
 </template>
 
 <style>
+body {
+  @apply bg-gray-100;
+}
+
 #npogress .bar {
   background-color: #f4f4f4 !important;
   height: 3px !important;

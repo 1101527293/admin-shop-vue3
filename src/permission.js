@@ -3,6 +3,7 @@ import { getToken } from '~/composables/auth.js'
 import { toast, showFullLoading, hideFullLoading } from '~/composables/utils.js'
 import store from '~/store'
 
+let hasGetInfo = false
 router.beforeEach(async (to, from, next) => {
     // 显示进度条
     showFullLoading()
@@ -22,10 +23,11 @@ router.beforeEach(async (to, from, next) => {
 
     // 自动获取用户信息
     let hasNewRoutes = false
-    if(token) {
+    if(token && !hasGetInfo) {
         let res = await store.dispatch('getInfo')
         // 动态添加路由
         hasNewRoutes = addRoutes(res.menus)
+        hasGetInfo = true
     }
 
     // 页面名称
