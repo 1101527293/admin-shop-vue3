@@ -1,9 +1,9 @@
 <template>
     <el-card shadow="never">
         <template #header>
-            <div class="flex justify-center items-center">
+            <div class="flex items-center">
                 <span class="text-sm">订单统计</span>
-                <div>
+                <div class="ml-auto">
                     <el-check-tag v-for="(item, index) in options" :key="index" :checked="current == item.value"
                         style="margin-right: 8px" @click="handleChoose(item.value)">
                         {{ item.text }}</el-check-tag>
