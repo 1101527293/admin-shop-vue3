@@ -1,5 +1,5 @@
 <template>
-    <el-aside width="220px" class="image-aside" :v-loading="loading">
+    <el-aside width="220px" class="image-aside" v-loading="loading">
         <div class="top">
             <AsideList v-for="(item, index) in list" :key="index" :active="activeId == item.id" @edit="handleEdit(item)"
                 @delete="handleDelete(item.id)" @click="handleChangeActiveId(item.id)">

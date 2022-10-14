@@ -13,7 +13,7 @@
             </el-tooltip>
         </div>
 
-        <el-table :data="tableData" stripe style="width: 100%" :v-loading="loading">
+        <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
             <el-table-column prop="title" label="公告标题" />
             <el-table-column prop="create_time" label="发布时间" width="380" />
             <el-table-column label="操作" width="180" align="center">
@@ -56,31 +56,18 @@ import { ref, reactive, computed } from 'vue';
 import { getNoticeList, createNotice, updateNotice, deleteNotice } from '~/api/notice.js'
 import { toast } from '../../composables/utils';
 import FormDrawer from '~/components/FormDrawer.vue';
+import { useInitTable } from '~/composables/useCommon.js';
 
-const tableData = ref([])
-
-const loading = ref(false)
-
-// 分页
-const currentPage = ref(1)
-const total = ref(0)
-const limit = ref(10)
-
-// 获取数据
-function getData(p = null) {
-    if (typeof p == 'number') {
-        currentPage.value = p
-    }
-    loading.value = true
-    getNoticeList(currentPage.value).then(res => {
-        tableData.value = res.list
-        total.value = res.totalCount
-    }).finally(() => {
-        loading.value = false
-    })
-}
-
-getData()
+const {
+    tableData,
+    loading,
+    currentPage,
+    total,
+    limit,
+    getData
+} = useInitTable({
+    getList: getNoticeList
+})
 
 // 删除公告
 const handleDelete = (id) => {
