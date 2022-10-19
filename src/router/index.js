@@ -19,6 +19,7 @@ import NoticeList from '~/pages/notice/list.vue'
 import SettingBase from '~/pages/setting/base.vue'
 import CouponList from '~/pages/coupon/list.vue'
 import ManagerList from '~/pages/manager/list.vue'
+import AccessList from '~/pages/access/list.vue'
 
 
 const routes = [
@@ -51,91 +52,99 @@ const routes = [
 // 动态路由
 const asyncRoutes = [
     {
-        path:'/',
-        name:'/',
+        path: '/',
+        name: '/',
         component: Index,
         meta: {
             title: '首页'
         },
     },
     {
-        path:'/goods/list',
-        name:'/goods/list',
+        path: '/goods/list',
+        name: '/goods/list',
         component: GoodList,
         meta: {
             title: '商品管理'
         },
     },
     {
-        path:'/category/list',
-        name:'/category/list',
+        path: '/category/list',
+        name: '/category/list',
         component: CategoryList,
         meta: {
             title: '分类列表'
         },
     },
     {
-        path:'/user/list',
-        name:'/user/list',
+        path: '/user/list',
+        name: '/user/list',
         component: UserList,
         meta: {
             title: '用户列表'
         },
     },
     {
-        path:'/order/list',
-        name:'/order/list',
+        path: '/order/list',
+        name: '/order/list',
         component: OrderList,
         meta: {
             title: '订单列表'
         },
     },
     {
-        path:'/comment/list',
-        name:'/comment/list',
+        path: '/comment/list',
+        name: '/comment/list',
         component: CommentList,
         meta: {
             title: '评价列表'
         },
     },
     {
-        path:'/image/list',
-        name:'/image/list',
+        path: '/image/list',
+        name: '/image/list',
         component: ImageList,
         meta: {
             title: '图库列表'
         },
     },
     {
-        path:'/notice/list',
-        name:'/notice/list',
+        path: '/notice/list',
+        name: '/notice/list',
         component: NoticeList,
         meta: {
             title: '公告列表'
         },
     },
     {
-        path:'/setting/base',
-        name:'/setting/base',
+        path: '/setting/base',
+        name: '/setting/base',
         component: SettingBase,
         meta: {
             title: '配置'
         },
     },
     {
-        path:'/coupon/list',
-        name:'/coupon/list',
+        path: '/coupon/list',
+        name: '/coupon/list',
         component: CouponList,
         meta: {
             title: '优惠券列表'
         },
     },
     {
-        path:'/manager/list',
-        name:'/manager/list',
+        path: '/manager/list',
+        name: '/manager/list',
         component: ManagerList,
         meta: {
             title: '管理员管理'
+        },
+    },
+    {
+        path: '/access/list',
+        name: '/access/list',
+        component: AccessList,
+        meta: {
+            title: '权限管理'
         },
     },
 ]
@@ -153,11 +162,11 @@ export function addRoutes(menus) {
     const findAndAddRoutesByMenus = (arr) => {
         arr.forEach(element => {
             let item = asyncRoutes.find(o => o.path == element.frontpath)
-            if (item && !router.hasRoute(item.path)){
+            if (item && !router.hasRoute(item.path)) {
                 router.addRoute('admin', item)
                 hasNewRouter = true
             }
-            if(element.child && element.child.length > 0) {
+            if (element.child && element.child.length > 0) {
                 findAndAddRoutesByMenus(element.child)
             }
         });

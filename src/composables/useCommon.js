@@ -96,22 +96,7 @@ export function useInitForm(opt = {}) {
     const formRef = ref(null)
     const defaultForm = opt.form
     const form = reactive({})
-    const rules = {
-        username: [
-            {
-                required: true,
-                message: '用户名不能为空',
-                trigger: 'blur'
-            }
-        ],
-        password: [
-            {
-                required: true,
-                message: '密码不能为空',
-                trigger: 'blur'
-            }
-        ]
-    }
+    const rules = opt.rules
 
     const editId = ref(0)
     const drawerTitle = computed(() => editId.value ? '修改' : '新增')
