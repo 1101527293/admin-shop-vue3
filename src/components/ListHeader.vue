@@ -2,9 +2,19 @@
     <div>
         <!-- 新增和刷新 -->
         <div class="flex items-center justify-between mb-4">
-            <el-button type="primary" size="small" @click="$emit('create')">新增</el-button>
+            <div>
+                <el-button v-if="btns.includes('create')" type="primary" size="small" @click="$emit('create')">新增
+                </el-button>
 
-            <el-tooltip class="box-item" effect="dark" content="刷新数据" placement="top">
+                <el-popconfirm v-if="btns.includes('delete')" title="是否要删除选中对象？" confirmButtonText="确认"
+                    cancelButtonText="取消" @confirm="$emit('delete')">
+                    <template #reference>
+                        <el-button type="danger" size="small">批量删除</el-button>
+                    </template>
+                </el-popconfirm>
+            </div>
+
+            <el-tooltip v-if="btns.includes('refresh')" class="box-item" effect="dark" content="刷新数据" placement="top">
                 <el-button text @click="$emit('refresh')">
                     <el-icon :size="20">
                         <Refresh />
@@ -16,7 +26,17 @@
 </template>
 
 <script setup>
-defineEmits(["create", "refresh"])
+import { computed } from "vue"
+
+defineEmits(["create", "refresh", "delete"])
+const props = defineProps({
+    layout: {
+        type: String,
+        default: "create,refresh"
+    }
+})
+
+const btns = computed(() => props.layout.split(","))
 </script>
 
 <style scoped>
