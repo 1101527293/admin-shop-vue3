@@ -7,32 +7,32 @@ let hasGetInfo = false
 router.beforeEach(async (to, from, next) => {
     // 显示进度条
     showFullLoading()
-    
+
     const token = getToken()
 
     // 没有登录
-    if( !token && to.path != '/login') {
+    if (!token && to.path != '/login') {
         toast('请先登录账号', 'error')
-        return next({path: '/login'})
+        return next({ path: '/login' })
     }
 
     // 避免重复登录
-    if( token && to.path == '/login') {
-        return next({ path: '/'})
+    if (token && to.path == '/login') {
+        return next({ path: '/' })
     }
 
     // 自动获取用户信息
     let hasNewRoutes = false
-    if(token && !hasGetInfo) {
+    if (token && !hasGetInfo) {
         let res = await store.dispatch('getInfo')
         // 动态添加路由
         hasNewRoutes = addRoutes(res.menus)
         hasGetInfo = true
     }
 
-    // 页面名称
-    // let title = (to.meta.title ? to.meta.title : '') + '-商城后台管理'
-    // document.title = title
+    // 修改页面名称
+    let title = (to.meta.title ? to.meta.title : '') + '-商城后台管理'
+    document.title = title
 
     hasNewRoutes ? next(to.fullPath) : next()
 })
