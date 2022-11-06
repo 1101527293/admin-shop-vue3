@@ -23,19 +23,21 @@
 
 
             <!-- 新增和刷新 -->
-            <div class="flex items-center justify-between mb-4">
-                <el-button type="primary" size="small" @click="handleCreate">新增</el-button>
+            <ListHeader layout="create,refresh,delete" @create="handleCreate" @refresh="getData"
+                @delete="handleMutiDelete">
+                <el-button size="small" @click="handleMutiStatusChange(1)"
+                    v-if="searchForm.tab == 'all' || searchForm.tab == 'off'">上架
+                </el-button>
+                <el-button size="small" @click="handleMutiStatusChange(0)"
+                    v-if="searchForm.tab == 'all' || searchForm.tab == 'saling'">下架
+                </el-button>
+            </ListHeader>
 
-                <el-tooltip class="box-item" effect="dark" content="刷新数据" placement="top">
-                    <el-button text @click="getData">
-                        <el-icon :size="20">
-                            <Refresh />
-                        </el-icon>
-                    </el-button>
-                </el-tooltip>
-            </div>
 
-            <el-table :data="tableData" stripe style="width: 100%" v-loading="loading">
+            <el-table ref="multipleTableRef" @selection-change="handleSelectionChange" :data="tableData" stripe
+                style="width: 100%" v-loading="loading">
+                <!-- 选择框 -->
+                <el-table-column type="selection" width="55" />
                 <!-- 商品信息 -->
                 <el-table-column label="商品" width="300px">
                     <template #default="{ row }">
@@ -64,7 +66,7 @@
                 <!-- 商品状态 -->
                 <el-table-column label="商品状态" width="100" align="center">
                     <template #default="{ row }">
-                        <el-tag :type="row.status == 0 ? 'success' : 'danger'" size="small">{{ row.status == 0 ? '上架' :
+                        <el-tag :type="row.status == 1 ? 'success' : 'danger'" size="small">{{ row.status == 1 ? '上架' :
                                 '仓库'
                         }}</el-tag>
                     </template>
@@ -91,7 +93,8 @@
                             <el-button class="px-1" type="primary" size="small" text @click="handleEdit(scope.row)">修改
                             </el-button>
                             <el-button class="px-1" type="primary" size="small" text @click="">商品规格</el-button>
-                            <el-button class="px-1" type="primary" size="small" text @click="">设置轮播图</el-button>
+                            <el-button class="px-1" type="primary" size="small" text
+                                @click="handleSetBanners(scope.row)">设置轮播图</el-button>
                             <el-button class="px-1" type="primary" size="small" text @click="">商品详情</el-button>
 
                             <!-- scope.row 就可以拿到当前对象 -->
@@ -116,31 +119,69 @@
             <!-- 抽屉 -->
             <FormDrawer ref="formDrawerRef" :title="drawerTitle" @submit="handleSubmit">
                 <el-form :model="form" ref="formRef" :rules="rules" label-width="80px" :inline="false">
-                    <el-form-item label="用户名" prop="username">
-                        <el-input v-model="form.username" placeholder="用户名"></el-input>
+                    <el-form-item label="商品名称" prop="title">
+                        <el-input v-model="form.title" placeholder="商品名称"></el-input>
                     </el-form-item>
-                    <el-form-item label="密码" prop="password">
-                        <el-input v-model="form.password" placeholder="密码"></el-input>
+                    <el-form-item label="封面" prop="cover">
+                        <ChooseImage v-model="form.cover"></ChooseImage>
                     </el-form-item>
-                    <el-form-item label="头像" prop="avatar">
-                        <ChooseImage v-model="form.avatar"></ChooseImage>
-                    </el-form-item>
-                    <el-form-item label="所属角色" prop="role_id">
-                        <el-select v-model="form.role_id" value-key="" placeholder="选择所属角色" clearable filterable
-                            @change="">
-                            <el-option v-for="item in roles" :key="item.id" :label="item.name" :value="item.id">
+                    <el-form-item label="商品分类" prop="category_id">
+                        <el-select v-model="form.category_id" placeholder="选择所属商品分类" clearable>
+                            <el-option v-for="item in category_list" :key="item.id" :label="item.name" :value="item.id">
                             </el-option>
                         </el-select>
-
                     </el-form-item>
-                    <el-form-item label="状态">
-                        <el-switch v-model="form.status" :active-value="1" :inactive-value="0">
-                        </el-switch>
+
+                    <el-form-item label="商品描述" prop="desc">
+                        <el-input type="textarea" v-model="form.desc" placeholder="选填，商品描述"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="单位" prop="unit">
+                        <el-input v-model="form.unit" placeholder="单位" style="width:50%"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="总库存" prop="stock">
+                        <el-input type="number" v-model="form.stock" style="width:50%">
+                            <template #append>件</template>
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item label="库存预警" prop="min_stock">
+                        <el-input type="number" v-model="form.min_stock" style="width:50%">
+                            <template #append>件</template>
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item label="最低售价" prop="min_price">
+                        <el-input type="number" v-model="form.min_price" style="width:50%">
+                            <template #append>元</template>
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item label="最低原价" prop="min_orice">
+                        <el-input type="number" v-model="form.min_orice" style="width:50%">
+                            <template #append>元</template>
+                        </el-input>
+                    </el-form-item>
+
+                    <el-form-item label="库存显示" prop="stock_display">
+                        <el-radio-group v-model="form.stock_display">
+                            <el-radio :label="0">隐藏</el-radio>
+                            <el-radio :label="1">显示</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+
+                    <el-form-item label="是否上架" prop="status">
+                        <el-radio-group v-model="form.status">
+                            <el-radio :label="0">放入仓库</el-radio>
+                            <el-radio :label="1">立即上架</el-radio>
+                        </el-radio-group>
                     </el-form-item>
                 </el-form>
             </FormDrawer>
 
         </el-card>
+
+        <banners ref="bannersRef">
+
+        </banners>
     </div>
 </template>
 
@@ -151,11 +192,11 @@ import { getCategoryList } from "~/api/category.js"
 import { toast } from '../../composables/utils';
 import FormDrawer from '~/components/FormDrawer.vue';
 import ChooseImage from '~/components/ChooseImage.vue';
+import ListHeader from "~/components/ListHeader.vue"
 import Search from "~/components/Search.vue"
 import SearchItem from "~/components/SearchItem.vue"
+import banners from "./banners.vue"
 import { useInitTable, useInitForm } from '~/composables/useCommon.js';
-
-const roles = ref([])
 
 const {
     searchForm,
@@ -166,7 +207,11 @@ const {
     total,
     getData,
     handleDelete,
-    handleStatusChange
+    handleStatusChange,
+    handleSelectionChange,
+    multipleTableRef,
+    handleMutiDelete,
+    handleMutiStatusChange
 } = useInitTable({
     searchForm: {
         title: '',
@@ -182,7 +227,6 @@ const {
             return o
         })
         total.value = res.totalCount
-        roles.value = res.roles
     }
 })
 
@@ -199,11 +243,17 @@ const {
     handleEdit
 } = useInitForm({
     form: {
-        username: '',
-        password: '',
-        role_id: null,
-        status: 1,
-        avatar: ''
+        title: null,
+        category_id: null,
+        cover: null,
+        desc: null,
+        unit: "件",
+        stock: 100, // 总库存
+        min_stock: 10, // 库存预警
+        status: 1, // 是否上架 0.仓库 1.上架
+        stock_display: 1, // 库存显示 0.隐藏 1.显示
+        min_price: 1, // 最低销售价格
+        min_oprice: 1 // 最低原价
     },
     rules: {
         username: [
@@ -256,9 +306,16 @@ const tabbars = [
 // 获取商品分类
 const category_list = ref([])
 getCategoryList().then(res => {
-    category_list.value = res.list
+    category_list.value = res
 })
 
 const showSearch = ref(false)
+
+// 设置轮播图
+const bannersRef = ref(null)
+const handleSetBanners = (row) => {
+    bannersRef.value.open(row)
+}
+
 
 </script>

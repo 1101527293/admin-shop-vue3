@@ -113,10 +113,14 @@ const handleDelete = (id) => {
 // 上传成功
 const handleUploadSuccess = () => getData(1)
 
-defineProps({
+const props = defineProps({
     openChoose: {
         type: Boolean,
         default: false
+    },
+    limit: {
+        type: Number,
+        default: 1
     }
 })
 
@@ -126,9 +130,9 @@ const checkedImage = computed(() => {
     return list.value.filter(o => o.checked == true)
 })
 const handleChooseChange = (item) => {
-    if (item.checked && checkedImage.value.length > 1) {
+    if (item.checked && checkedImage.value.length > props.limit) {
         item.checked = false
-        return toast('只能选中一张图片', 'error')
+        return toast(`只能选中${props.limit}张图片`, 'error')
     }
     emit('choose', checkedImage.value)
 }

@@ -99,6 +99,22 @@ export function useInitTable(opt = {}) {
             })
     }
 
+    // 批量上架或下架
+    const handleMutiStatusChange = (status) => {
+        loading.value = true
+        opt.updateStatus(multiSelectionIds.value, status)
+            .then(res => {
+                toast("修改状态成功")
+                if (multipleTableRef) {
+                    multipleTableRef.value.clearSelection()
+                }
+                getData()
+            })
+            .finally(() => {
+                loading.value = false
+            })
+    }
+
     return {
         searchForm,
         resetSearchForm,
@@ -112,6 +128,7 @@ export function useInitTable(opt = {}) {
         handleSelectionChange,
         multipleTableRef,
         handleMutiDelete,
+        handleMutiStatusChange
     }
 }
 
