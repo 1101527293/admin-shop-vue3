@@ -92,10 +92,12 @@
                         <div v-if="searchForm.tab != 'delete'">
                             <el-button class="px-1" type="primary" size="small" text @click="handleEdit(scope.row)">修改
                             </el-button>
-                            <el-button class="px-1" type="primary" size="small" text @click="">商品规格</el-button>
-                            <el-button class="px-1" type="primary" size="small" text
-                                @click="handleSetBanners(scope.row)">设置轮播图</el-button>
-                            <el-button class="px-1" type="primary" size="small" text @click="">商品详情</el-button>
+                            <el-button class="px-1" type="primary" size="small" text @click="handleSetSkus(scope.row)">
+                                商品规格</el-button>
+                            <el-button class="px-1" :type="scope.row.goods_banner.length == 0 ? 'danger' : 'primary'"
+                                size="small" text @click="handleSetBanners(scope.row)">设置轮播图</el-button>
+                            <el-button class="px-1" :type="!scope.row.content ? 'danger' : 'primary'" size="small" text
+                                @click="handleSetContent(scope.row)">商品详情</el-button>
 
                             <!-- scope.row 就可以拿到当前对象 -->
                             <el-popconfirm title="是否要删除该商品？" confirmButtonText="确认" cancelButtonText="取消"
@@ -179,9 +181,9 @@
 
         </el-card>
 
-        <banners ref="bannersRef">
-
-        </banners>
+        <banners ref="bannersRef" @reload-data="getData"></banners>
+        <content ref="contentRef" @reload-data="getData"></content>
+        <skus ref="skusRef" @reload-data="getData"></skus>
     </div>
 </template>
 
@@ -196,6 +198,8 @@ import ListHeader from "~/components/ListHeader.vue"
 import Search from "~/components/Search.vue"
 import SearchItem from "~/components/SearchItem.vue"
 import banners from "./banners.vue"
+import content from "./content.vue"
+import skus from "./skus.vue"
 import { useInitTable, useInitForm } from '~/composables/useCommon.js';
 
 const {
@@ -317,5 +321,16 @@ const handleSetBanners = (row) => {
     bannersRef.value.open(row)
 }
 
+// 设置商品详情
+const contentRef = ref(null)
+const handleSetContent = (row) => {
+    contentRef.value.open(row)
+}
+
+// 设置商品规格
+const skusRef = ref(null)
+const handleSetSkus = (row) => {
+    skusRef.value.open(row)
+}
 
 </script>

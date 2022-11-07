@@ -1,5 +1,5 @@
 <template>
-    <div v-if="modelValue">
+    <div v-if="modelValue && preview">
         <el-image v-if="typeof modelValue == 'string'" :src="modelValue" fit="cover"
             class="w-[100px] h-[100px] rounded border mr-2"></el-image>
         <div v-else class="flex flex-wrap">
@@ -12,7 +12,7 @@
             </div>
         </div>
     </div>
-    <div class="choose-image-btn" @click="open">
+    <div v-if="preview" class="choose-image-btn" @click="open">
         <el-icon :size="25" class="text-gray-400">
             <Plus />
         </el-icon>
@@ -49,8 +49,11 @@ import { toast } from '../composables/utils';
 
 const dialogVisible = ref(false)
 
-const open = () => dialogVisible.value = true
-
+const callbackFunction = ref(null)
+const open = (callback = null) => {
+    dialogVisible.value = true
+    callbackFunction.value = callback
+}
 const close = () => dialogVisible.value = false
 
 const submit = () => {
@@ -58,13 +61,17 @@ const submit = () => {
     if (props.limit == 1) {
         value = urls[0]
     } else {
-        value = [...props.modelValue, ...urls]
+        value = props.preview ? [...props.modelValue, ...urls] : [...urls]
         if (value.length > props.limit) {
-            return toast("最多还能传" + (props.limit - props.modelValue.length) + "张图片")
+            let limit = props.preview ? (props.limit - props.modelValue.length) : props.limit
+            return toast("最多还能传" + limit + "张图片")
         }
     }
-    if (value) {
+    if (value && props.preview) {
         emit('update:modelValue', value)
+    }
+    if (!props.preview && typeof callbackFunction.value == "function") {
+        callbackFunction.value(value)
     }
     close()
 }
@@ -83,6 +90,10 @@ const props = defineProps({
     limit: {
         type: Number,
         default: 1
+    },
+    preview: {
+        type: Boolean,
+        default: true
     }
 })
 const emit = defineEmits(['update:modelValue'])
@@ -96,6 +107,11 @@ const removeImage = (url) => {
     emit("update:modelValue", props.modelValue.filter(item => item != url))
 
 }
+
+defineExpose({
+    open,
+    close
+})
 
 </script>
 
